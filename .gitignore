@@ -1,0 +1,7 @@
+node_modules/
+.scaffold/
+*.xpi
+.env
+tsconfig.tsbuildinfo
+*.bak
+.DS_Store
