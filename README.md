@@ -1,5 +1,9 @@
 # ADHD Lens for Zotero
 
+<p align="center">
+  <img src="assets/adhd-lens-icon.png" width="96" alt="ADHD Lens for Zotero icon">
+</p>
+
 ![Zotero](https://img.shields.io/badge/Zotero-9-red?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-enabled-blue?style=flat-square)
 ![Status](https://img.shields.io/badge/status-experimental-orange?style=flat-square)
