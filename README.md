@@ -4,11 +4,19 @@
   <img src="assets/adhd-lens-icon.png" width="96" alt="ADHD Lens for Zotero icon">
 </p>
 
-![Zotero](https://img.shields.io/badge/Zotero-9-red?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-enabled-blue?style=flat-square)
-![Status](https://img.shields.io/badge/status-experimental-orange?style=flat-square)
-![License](https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square)
-[![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
+<p align="center">
+  <strong>A lightweight reading guide overlay for focused PDF reading in Zotero.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Zotero-9-red?style=flat-square" alt="Zotero 9">
+  <img src="https://img.shields.io/badge/TypeScript-enabled-blue?style=flat-square" alt="TypeScript">
+  <img src="https://img.shields.io/badge/status-experimental-orange?style=flat-square" alt="Experimental status">
+  <img src="https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square" alt="AGPL-3.0 License">
+  <a href="https://github.com/windingwind/zotero-plugin-template">
+    <img src="https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github" alt="Using Zotero Plugin Template">
+  </a>
+</p>
 
 **ADHD Lens for Zotero** is a lightweight Zotero plugin that adds a movable, resizable, translucent reading guide overlay for focused PDF reading.
 
@@ -16,6 +24,14 @@ It is designed as an accessibility-oriented Zotero extension for people who bene
 
 > Current target: **Zotero 9**  
 > Current status: **experimental prototype**
+
+---
+
+## Download
+
+Download the latest `.xpi` file from the GitHub Releases page:
+
+https://github.com/ObservaGP/adhd-lens/releases/latest
 
 ---
 
@@ -27,7 +43,7 @@ The guide works like a soft, translucent reading bar that can be positioned over
 
 The plugin currently supports:
 
-- a movable reading guide overlay;
+- movable reading guide overlay;
 - width resizing;
 - height resizing;
 - color presets;
@@ -35,7 +51,8 @@ The plugin currently supports:
 - keyboard shortcuts;
 - Zotero Tools menu integration;
 - toolbar button integration;
-- local per-PDF layout memory.
+- local per-PDF layout memory;
+- PDF-only behavior, so the guide does not appear over Zotero's main library/items list.
 
 ---
 
@@ -52,7 +69,7 @@ Academic PDFs are often visually dense, especially when they use:
 
 ADHD Lens was created to support focused academic reading by providing a simple visual guide that helps the reader keep their place on the page.
 
-The project was inspired by screen ruler and reading ruler tools, but adapted specifically for Zotero's PDF reading workflow.
+The project was inspired by screen ruler, reading ruler, and visual focus tools, but adapted specifically for Zotero's PDF reading workflow.
 
 ---
 
@@ -85,7 +102,7 @@ This is useful because different PDFs often require different guide positions, e
 
 The reading guide is shown only when a Zotero PDF reader tab is active.
 
-It does not appear over the main Zotero library/items list.
+It does not appear over Zotero's main library/items list.
 
 ### Color presets
 
@@ -107,7 +124,9 @@ The plugin includes preset layouts for common reading situations:
 
 These presets are useful for one-column and two-column academic PDFs.
 
-### Keyboard shortcuts
+---
+
+## Keyboard shortcuts
 
 Some actions can be triggered with keyboard shortcuts.
 

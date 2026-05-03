@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use ADHD Lens for Zotero, please cite it as below."
+title: "ADHD Lens for Zotero"
+version: "0.1.1"
+date-released: 2026-05-02
+type: software
+abstract: "A Zotero plugin that adds a movable, resizable reading guide overlay for focused PDF reading."
+authors:
+  - family-names: "Gianordoli"
+    given-names: "Victor"
+  - family-names: "Lemos Dias"
+    given-names: "Taciana de"
+repository-code: "https://github.com/ObservaGP/adhd-lens"
+url: "https://github.com/ObservaGP/adhd-lens"
+license: "AGPL-3.0-or-later"
+keywords:
+  - Zotero
+  - Zotero plugin
+  - Zotero addon
+  - Zotero extension
+  - Zotero 9
+  - Zotero PDF reader
+  - PDF reader
+  - PDF reading
+  - Reading guide
+  - Reading ruler
+  - Reading overlay
+  - Accessibility
+  - ADHD
+  - Focus
+  - Academic reading
+  - Assistive technology
