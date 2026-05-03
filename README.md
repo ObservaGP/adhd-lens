@@ -173,3 +173,195 @@ Tools
     │   ├── Left column
     │   └── Right column
     └── Show current tab/document key
+```
+
+The diagnostic option **Show current tab/document key** is mainly intended for development and debugging.
+
+---
+
+## Toolbar button
+
+ADHD Lens includes a toolbar button for toggling the reading guide in PDF tabs.
+
+The toolbar button is currently experimental and may change in future releases.
+
+---
+
+## Installation
+
+### From GitHub Releases
+
+1. Go to the latest release page:
+
+   https://github.com/ObservaGP/adhd-lens/releases/latest
+
+2. Download the latest `adhd-lens.xpi` file.
+
+3. In Zotero, open:
+
+   ```text
+   Tools → Plugins
+   ```
+
+4. Drag the `.xpi` file into the Plugins window.
+
+5. Restart Zotero.
+
+---
+
+## Compatibility
+
+| Application | Status |
+|---|---|
+| Zotero 9 | Target version |
+| Zotero 8 | Not tested |
+| Zotero 7 | Not currently targeted |
+| Zotero 6 | Not supported |
+
+Tested environment:
+
+- Linux Mint / Ubuntu
+- Zotero 9
+- Node.js 22
+- npm 10
+
+---
+
+## Development setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ObservaGP/adhd-lens.git
+cd adhd-lens
+```
+
+Use the Node.js version defined in `.nvmrc`:
+
+```bash
+nvm use
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Build the plugin:
+
+```bash
+npm run build
+```
+
+The generated `.xpi` file is created inside:
+
+```bash
+.scaffold/build/
+```
+
+---
+
+## Main source files
+
+The main reading guide logic is implemented in:
+
+```text
+src/modules/readingGuide.ts
+```
+
+The Zotero lifecycle hook integration is implemented in:
+
+```text
+src/hooks.ts
+```
+
+The Zotero plugin bootstrap file is:
+
+```text
+addon/bootstrap.js
+```
+
+This project was initially developed from the Zotero Plugin Template.
+
+---
+
+## Roadmap
+
+Planned or possible improvements:
+
+- improve toolbar button behavior and styling;
+- rename remaining internal scaffold/template references, if any;
+- add a preferences pane;
+- allow users to configure default opacity;
+- allow users to configure default color;
+- allow users to configure default height;
+- allow users to reset the layout for the current PDF;
+- improve accessibility options;
+- prepare stable GitHub releases with `.xpi` packages;
+- archive stable releases on Zenodo;
+- add DOI-based citation metadata.
+
+---
+
+## Current limitations
+
+ADHD Lens is still experimental.
+
+Known limitations:
+
+- the toolbar button is still being refined;
+- the preferences pane is not complete yet;
+- layout memory is local and does not currently sync across devices;
+- behavior may vary depending on Zotero version and operating system;
+- the plugin currently targets Zotero 9.
+
+---
+
+## How to cite / Como citar
+
+Until a Zenodo DOI is available, please cite the GitHub repository:
+
+> Gianordoli, V., & Lemos Dias, T. (2026). *ADHD Lens for Zotero* (Version 0.1.1) [Computer software]. GitHub. https://github.com/ObservaGP/adhd-lens
+
+Enquanto o DOI do Zenodo não estiver disponível, cite o repositório do GitHub:
+
+> Gianordoli, V., & Lemos Dias, T. (2026). *ADHD Lens for Zotero* (Versão 0.1.1) [Software]. GitHub. https://github.com/ObservaGP/adhd-lens
+
+### BibTeX
+
+```bibtex
+@software{gianordoli_lemosdias_adhd_lens_2026,
+  author = {Gianordoli, Victor and Lemos Dias, Taciana de},
+  title = {ADHD Lens for Zotero},
+  version = {0.1.1},
+  year = {2026},
+  publisher = {GitHub},
+  url = {https://github.com/ObservaGP/adhd-lens},
+  note = {Zotero plugin for focused PDF reading}
+}
+```
+
+A Zenodo DOI will be added after the first archived release.
+
+---
+
+## Keywords
+
+Zotero plugin, Zotero addon, Zotero extension, Zotero 9, Zotero PDF reader, PDF reading guide, reading ruler, reading overlay, accessibility, ADHD, focus, academic reading, assistive technology, PDF accessibility.
+
+---
+
+## License
+
+This project is licensed under the **AGPL-3.0-or-later License**.
+
+No warranties are provided.
+
+---
+
+## Acknowledgements
+
+ADHD Lens was initially developed using the Zotero Plugin Template.
+
+The idea was inspired by reading ruler and screen ruler tools, adapted for focused PDF reading inside Zotero.
