@@ -1,19 +1,19 @@
 {
   "manifest_version": 2,
-  "name": "__addonName__",
-  "version": "__buildVersion__",
-  "description": "__description__",
-  "homepage_url": "__homepage__",
-  "author": "__author__",
+  "name": "ADHD Lens",
+  "version": "0.1.1",
+  "description": "Movable, resizable reading guide overlay for focused PDF reading in Zotero.",
+  "homepage_url": "https://github.com/ObservaGP/adhd-lens",
+  "author": "Victor Gianordoli; Taciana de Lemos Dias",
   "icons": {
     "48": "content/icons/favicon@0.5x.png",
     "96": "content/icons/favicon.png"
   },
   "applications": {
     "zotero": {
-      "id": "__addonID__",
-      "update_url": "__updateURL__",
-      "strict_min_version": "6.999",
+      "id": "adhd-lens@observagp",
+      "update_url": "https://github.com/ObservaGP/adhd-lens/releases/latest/download/update.json",
+      "strict_min_version": "9.0",
       "strict_max_version": "9.*"
     }
   }

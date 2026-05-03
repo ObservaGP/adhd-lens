@@ -1,25 +1,49 @@
 {
-  "name": "zotero-reading-guide",
+  "name": "adhd-lens",
   "type": "module",
   "version": "0.1.1",
-  "description": "Reading guide overlay for Zotero PDF reading.",
+  "description": "A Zotero plugin that adds a movable, resizable reading guide overlay for focused PDF reading.",
   "config": {
-    "addonName": "Zotero Reading Guide",
-    "addonID": "zotero-reading-guide@victor",
-    "addonRef": "addontemplate",
-    "addonInstance": "AddonTemplate",
-    "prefsPrefix": "extensions.zotero.addontemplate"
+    "addonName": "ADHD Lens",
+    "addonID": "adhd-lens@observagp",
+    "addonRef": "adhdlens",
+    "addonInstance": "ADHDLens",
+    "prefsPrefix": "extensions.zotero.adhdlens"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/windingwind/zotero-plugin-template.git"
+    "url": "git+https://github.com/ObservaGP/adhd-lens.git"
   },
   "author": "Victor Gianordoli",
+  "contributors": [
+    "Taciana de Lemos Dias"
+  ],
   "bugs": {
-    "url": "https://github.com/windingwind/zotero-plugin-template/issues"
+    "url": "https://github.com/ObservaGP/adhd-lens/issues"
   },
-  "homepage": "https://github.com/victorgianordoli/zotero-reading-guide",
+  "homepage": "https://github.com/ObservaGP/adhd-lens",
   "license": "AGPL-3.0-or-later",
+  "keywords": [
+    "zotero",
+    "zotero-plugin",
+    "zotero-addon",
+    "zotero-extension",
+    "zotero9",
+    "zotero-reader",
+    "zotero-pdf",
+    "zotero-pdf-reader",
+    "pdf-reader",
+    "pdf-reading",
+    "reading-guide",
+    "reading-ruler",
+    "reading-overlay",
+    "accessibility",
+    "adhd",
+    "focus",
+    "academic-reading",
+    "assistive-technology",
+    "typescript"
+  ],
   "scripts": {
     "start": "zotero-plugin serve",
     "build": "zotero-plugin build && tsc --noEmit",

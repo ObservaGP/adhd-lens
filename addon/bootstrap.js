@@ -1,8 +1,5 @@
 /**
- * Most of this code is from Zotero team's official Make It Red example[1]
- * or the Zotero 7 documentation[2].
- * [1] https://github.com/zotero/make-it-red
- * [2] https://www.zotero.org/support/dev/zotero_7_for_developers
+ * ADHD Lens for Zotero
  */
 
 var chromeHandle;
@@ -17,32 +14,26 @@ async function startup({ id, version, resourceURI, rootURI }, reason) {
   var manifestURI = Services.io.newURI(rootURI + "manifest.json");
 
   chromeHandle = aomStartup.registerChrome(manifestURI, [
-    ["content", "addontemplate", rootURI + "content/"],
+    ["content", "adhdlens", rootURI + "content/"],
   ]);
 
-  /**
-   * Global variables for plugin code.
-   * The `_globalThis` is the global root variable of the plugin sandbox environment
-   * and all child variables assigned to it is globally accessible.
-   * See `src/index.ts` for details.
-   */
   const ctx = { rootURI };
   ctx._globalThis = ctx;
 
   Services.scriptloader.loadSubScript(
-    `${rootURI}/content/scripts/addontemplate.js`,
+    `${rootURI}/content/scripts/adhdlens.js`,
     ctx,
   );
 
-  await Zotero.AddonTemplate.hooks.onStartup();
+  await Zotero.ADHDLens.hooks.onStartup();
 }
 
 async function onMainWindowLoad({ window }, reason) {
-  await Zotero.AddonTemplate?.hooks.onMainWindowLoad(window);
+  await Zotero.ADHDLens?.hooks.onMainWindowLoad(window);
 }
 
 async function onMainWindowUnload({ window }, reason) {
-  await Zotero.AddonTemplate?.hooks.onMainWindowUnload(window);
+  await Zotero.ADHDLens?.hooks.onMainWindowUnload(window);
 }
 
 async function shutdown({ id, version, resourceURI, rootURI }, reason) {
@@ -50,7 +41,7 @@ async function shutdown({ id, version, resourceURI, rootURI }, reason) {
     return;
   }
 
-  await Zotero.AddonTemplate?.hooks.onShutdown();
+  await Zotero.ADHDLens?.hooks.onShutdown();
 
   if (chromeHandle) {
     chromeHandle.destruct();
