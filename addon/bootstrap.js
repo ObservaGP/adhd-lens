@@ -13,9 +13,11 @@ async function startup({ id, version, resourceURI, rootURI }, reason) {
   var aomStartup = Components.classes[
     "@mozilla.org/addons/addon-manager-startup;1"
   ].getService(Components.interfaces.amIAddonManagerStartup);
+
   var manifestURI = Services.io.newURI(rootURI + "manifest.json");
+
   chromeHandle = aomStartup.registerChrome(manifestURI, [
-    ["content", "__addonRef__", rootURI + "content/"],
+    ["content", "addontemplate", rootURI + "content/"],
   ]);
 
   /**
@@ -28,18 +30,19 @@ async function startup({ id, version, resourceURI, rootURI }, reason) {
   ctx._globalThis = ctx;
 
   Services.scriptloader.loadSubScript(
-    `${rootURI}/content/scripts/__addonRef__.js`,
+    `${rootURI}/content/scripts/addontemplate.js`,
     ctx,
   );
-  await Zotero.__addonInstance__.hooks.onStartup();
+
+  await Zotero.AddonTemplate.hooks.onStartup();
 }
 
 async function onMainWindowLoad({ window }, reason) {
-  await Zotero.__addonInstance__?.hooks.onMainWindowLoad(window);
+  await Zotero.AddonTemplate?.hooks.onMainWindowLoad(window);
 }
 
 async function onMainWindowUnload({ window }, reason) {
-  await Zotero.__addonInstance__?.hooks.onMainWindowUnload(window);
+  await Zotero.AddonTemplate?.hooks.onMainWindowUnload(window);
 }
 
 async function shutdown({ id, version, resourceURI, rootURI }, reason) {
@@ -47,7 +50,7 @@ async function shutdown({ id, version, resourceURI, rootURI }, reason) {
     return;
   }
 
-  await Zotero.__addonInstance__?.hooks.onShutdown();
+  await Zotero.AddonTemplate?.hooks.onShutdown();
 
   if (chromeHandle) {
     chromeHandle.destruct();

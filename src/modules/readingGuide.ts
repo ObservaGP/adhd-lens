@@ -27,6 +27,10 @@ type StoredGuideLayout = {
 
 const PREF_KEY = "extensions.zoteroReadingGuide.layoutsByDocument";
 
+const GUIDE_ID = "zotero-reading-guide-bar";
+const TOOLBAR_BUTTON_ID = "zotero-reading-guide-toolbar-button";
+const TOOLBAR_STYLE_ID = "zotero-reading-guide-toolbar-style";
+
 const COLOR_PRESETS: ColorPreset[] = [
   {
     name: "Amarelo",
@@ -108,9 +112,14 @@ export class ReadingGuideController {
 
   install() {
     this.currentDocumentKey = this.getCurrentDocumentKey();
+
     this.createMenuItems();
+    this.createToolbarButton();
     this.registerKeyboardShortcuts();
-    this.show();
+
+    if (this.isReaderTabActive()) {
+      this.show();
+    }
 
     this.refreshTimer = this.win.setInterval(() => {
       this.handleDocumentSwitch();
@@ -121,6 +130,7 @@ export class ReadingGuideController {
     this.saveCurrentLayout();
     this.hide();
     this.removeMenuItems();
+    this.removeToolbarButton();
 
     if (this.refreshTimer !== null) {
       this.win.clearInterval(this.refreshTimer);
@@ -132,18 +142,31 @@ export class ReadingGuideController {
     if (this.guide) {
       this.saveCurrentLayout();
       this.hide();
-    } else {
-      this.show();
+      return;
     }
+
+    if (!this.isReaderTabActive()) {
+      Zotero.debug("Zotero Reading Guide: ignored toggle outside PDF reader tab");
+      this.updateToolbarButtonState();
+      return;
+    }
+
+    this.show();
   }
 
   show() {
     if (this.guide) return;
 
+    if (!this.isReaderTabActive()) {
+      Zotero.debug("Zotero Reading Guide: show ignored outside PDF reader tab");
+      this.updateToolbarButtonState();
+      return;
+    }
+
     this.currentDocumentKey = this.getCurrentDocumentKey();
 
     const guide = this.doc.createElementNS(HTML_NS, "div") as HTMLElement;
-    guide.id = "zotero-reading-guide-bar";
+    guide.id = GUIDE_ID;
 
     const color = COLOR_PRESETS[this.colorIndex];
     const size = SIZE_PRESETS[0];
@@ -196,17 +219,50 @@ export class ReadingGuideController {
     this.guide = guide;
 
     this.applySavedLayout();
+    this.updateToolbarButtonState();
 
     Zotero.debug(`Zotero Reading Guide: shown for ${this.currentDocumentKey}`);
   }
 
   hide() {
-    if (!this.guide) return;
+    if (!this.guide) {
+      this.updateToolbarButtonState();
+      return;
+    }
 
     this.guide.remove();
     this.guide = null;
 
+    this.updateToolbarButtonState();
+
     Zotero.debug("Zotero Reading Guide: hidden");
+  }
+
+  private isReaderTabActive(): boolean {
+    try {
+      const zoteroTabs = (this.win as any).Zotero_Tabs || (globalThis as any).Zotero_Tabs;
+
+      const selectedID =
+        zoteroTabs?.selectedID ||
+        zoteroTabs?._selectedID ||
+        zoteroTabs?.selectedTabID ||
+        zoteroTabs?._selectedTabID ||
+        zoteroTabs?.selected;
+
+      if (!selectedID) {
+        return false;
+      }
+
+      const reader = this.getReaderFromTabID(String(selectedID));
+
+      if (!reader) {
+        return false;
+      }
+
+      return reader._type === "pdf" || reader.type === "pdf" || Boolean(reader.itemID);
+    } catch (_err) {
+      return false;
+    }
   }
 
   private createHandle(position: "left" | "right" | "bottom"): HTMLElement {
@@ -377,6 +433,11 @@ export class ReadingGuideController {
     this.colorIndex = index;
 
     if (!this.guide) {
+      if (!this.isReaderTabActive()) {
+        Zotero.debug("Zotero Reading Guide: color change ignored outside PDF reader tab");
+        return;
+      }
+
       this.show();
     }
 
@@ -388,12 +449,18 @@ export class ReadingGuideController {
     this.guide.style.border = `1px solid ${color.border}`;
 
     this.saveCurrentLayout();
+    this.updateToolbarButtonState();
 
     Zotero.debug(`Zotero Reading Guide: color changed to ${color.name}`);
   }
 
   private applySizePreset(index: number) {
     if (!this.guide) {
+      if (!this.isReaderTabActive()) {
+        Zotero.debug("Zotero Reading Guide: size preset ignored outside PDF reader tab");
+        return;
+      }
+
       this.show();
     }
 
@@ -414,22 +481,46 @@ export class ReadingGuideController {
     this.guide.style.height = `${rect.height}px`;
 
     this.saveCurrentLayout();
+    this.updateToolbarButtonState();
 
     Zotero.debug(`Zotero Reading Guide: size preset changed to ${size.name}`);
   }
 
   private handleDocumentSwitch() {
+    const readerActive = this.isReaderTabActive();
+
+    if (!readerActive) {
+      if (this.guide) {
+        this.saveCurrentLayout();
+        this.hide();
+      }
+
+      this.currentDocumentKey = "";
+      this.updateToolbarButtonState();
+      return;
+    }
+
     const newKey = this.getCurrentDocumentKey();
 
-    if (newKey === this.currentDocumentKey) return;
+    if (newKey === this.currentDocumentKey) {
+      if (!this.guide) {
+        this.show();
+      }
+
+      this.updateToolbarButtonState();
+      return;
+    }
 
     this.saveCurrentLayout();
-
     this.currentDocumentKey = newKey;
 
-    if (this.guide) {
+    if (!this.guide) {
+      this.show();
+    } else {
       this.applySavedLayout();
     }
+
+    this.updateToolbarButtonState();
 
     Zotero.debug(`Zotero Reading Guide: active document changed to ${newKey}`);
   }
@@ -437,12 +528,12 @@ export class ReadingGuideController {
   private getCurrentDocumentKey(): string {
     /*
       Chave de memória.
-      Esta versão tenta primeiro usar objetos internos de abas/leitor do Zotero.
-      Se não conseguir, usa DOM e depois fallback.
+      No Zotero 9, o reader expõe reader.itemID.
+      A melhor chave é libraryID + item.key do attachment PDF.
     */
 
     try {
-      const zoteroTabs = (this.win as any).Zotero_Tabs;
+      const zoteroTabs = (this.win as any).Zotero_Tabs || (globalThis as any).Zotero_Tabs;
 
       if (zoteroTabs) {
         const selectedID =
@@ -456,6 +547,12 @@ export class ReadingGuideController {
           const reader = this.getReaderFromTabID(String(selectedID));
 
           if (reader) {
+            const stableAttachmentKey = this.extractStableAttachmentKey(reader);
+
+            if (stableAttachmentKey) {
+              return stableAttachmentKey;
+            }
+
             const readerKey = this.extractReaderKey(reader);
 
             if (readerKey) {
@@ -501,9 +598,37 @@ export class ReadingGuideController {
     return "global";
   }
 
+  private extractStableAttachmentKey(reader: any): string {
+    try {
+      const itemID =
+        reader?.itemID ||
+        reader?._itemID ||
+        reader?.item?.id ||
+        reader?._item?.id;
+
+      if (!itemID) {
+        return "";
+      }
+
+      const item = (Zotero as any).Items.get(itemID);
+
+      if (!item || !item.isAttachment?.()) {
+        return "";
+      }
+
+      if (item.libraryID && item.key) {
+        return `attachment:library-${item.libraryID}.item-${item.key}`;
+      }
+
+      return `attachment:item-id-${itemID}`;
+    } catch (_err) {
+      return "";
+    }
+  }
+
   private getReaderFromTabID(tabID: string): any | null {
     try {
-      const zotero = (this.win as any).Zotero;
+      const zotero = (this.win as any).Zotero || (globalThis as any).Zotero;
       const readerAPI = zotero?.Reader || (Zotero as any).Reader;
 
       if (!readerAPI) return null;
@@ -826,6 +951,122 @@ export class ReadingGuideController {
     Zotero.debug(`Zotero Reading Guide: layout restored for ${key}`);
   }
 
+  private createToolbarButton() {
+    this.ensureToolbarButtonStyle();
+
+    if (this.doc.getElementById(TOOLBAR_BUTTON_ID)) {
+      this.updateToolbarButtonState();
+      return;
+    }
+
+    const toolbar =
+      this.doc.getElementById("zotero-tabs-toolbar") ||
+      this.doc.getElementById("zotero-items-toolbar") ||
+      this.doc.getElementById("zotero-toolbar") ||
+      this.doc.querySelector("toolbar");
+
+    if (!toolbar) {
+      Zotero.debug("Zotero Reading Guide: toolbar not found");
+      return;
+    }
+
+    const createXULElement = (this.doc as any).createXULElement?.bind(this.doc);
+    const button = createXULElement
+      ? createXULElement("toolbarbutton")
+      : this.doc.createElementNS(XUL_NS, "toolbarbutton");
+
+    button.setAttribute("id", TOOLBAR_BUTTON_ID);
+    button.setAttribute("class", "zotero-tb-button");
+    button.setAttribute("type", "button");
+    button.setAttribute("tabindex", "-1");
+    button.setAttribute("tooltiptext", "Mostrar/ocultar ADHD Lens");
+    button.setAttribute("aria-label", "Mostrar/ocultar ADHD Lens");
+    button.setAttribute("label", "");
+    button.setAttribute("data-active", "false");
+
+    button.addEventListener("command", () => {
+      this.toggle();
+      this.updateToolbarButtonState();
+    });
+
+    button.addEventListener("click", () => {
+      this.toggle();
+      this.updateToolbarButtonState();
+    });
+
+    const insertBefore =
+      this.doc.getElementById("zotero-tb-tabs-menu") ||
+      this.doc.getElementById("zotero-tb-sync") ||
+      toolbar.firstChild;
+
+    toolbar.insertBefore(button, insertBefore);
+    this.updateToolbarButtonState();
+
+    Zotero.debug("Zotero Reading Guide: toolbar button created");
+  }
+
+  private ensureToolbarButtonStyle() {
+    if (this.doc.getElementById(TOOLBAR_STYLE_ID)) {
+      return;
+    }
+
+    const style = this.doc.createElementNS(HTML_NS, "style");
+    style.id = TOOLBAR_STYLE_ID;
+
+    style.textContent = `
+      #${TOOLBAR_BUTTON_ID} {
+        min-width: 28px !important;
+        width: 28px !important;
+        min-height: 28px !important;
+        height: 28px !important;
+        padding: 0 !important;
+        margin: 0 2px !important;
+        border-radius: 4px !important;
+        background: transparent !important;
+        list-style-image: none !important;
+        -moz-context-properties: none !important;
+      }
+
+      #${TOOLBAR_BUTTON_ID}::before {
+        content: "";
+        display: block;
+        width: 16px;
+        height: 16px;
+        margin: 6px;
+        border-radius: 3px;
+        background: rgba(255, 150, 0, 0.96);
+        box-shadow:
+          inset 0 0 0 1px rgba(130, 70, 0, 0.45),
+          0 0 0 1px rgba(255, 255, 255, 0.35);
+      }
+
+      #${TOOLBAR_BUTTON_ID}[data-active="true"]::before {
+        background: rgba(255, 215, 70, 0.98);
+        box-shadow:
+          inset 0 0 0 1px rgba(130, 90, 0, 0.55),
+          0 0 0 2px rgba(255, 210, 60, 0.38);
+      }
+
+      #${TOOLBAR_BUTTON_ID}:hover::before {
+        filter: brightness(1.08);
+      }
+    `;
+
+    this.doc.documentElement!.appendChild(style);
+  }
+
+  private updateToolbarButtonState() {
+    const button = this.doc.getElementById(TOOLBAR_BUTTON_ID);
+    if (!button) return;
+
+    button.setAttribute("data-active", this.guide ? "true" : "false");
+  }
+
+  private removeToolbarButton() {
+    this.doc.getElementById(TOOLBAR_BUTTON_ID)?.remove();
+    this.doc.getElementById(TOOLBAR_STYLE_ID)?.remove();
+  }
+
   private createMenuItems() {
     const toolsPopup =
       this.doc.getElementById("menu_ToolsPopup") ||
@@ -842,7 +1083,7 @@ export class ReadingGuideController {
 
     const mainMenu = this.doc.createElementNS(XUL_NS, "menu");
     mainMenu.setAttribute("id", "zotero-reading-guide-menu");
-    mainMenu.setAttribute("label", "Zotero Reading Guide");
+    mainMenu.setAttribute("label", "ADHD Lens");
 
     const popup = this.doc.createElementNS(XUL_NS, "menupopup");
     mainMenu.appendChild(popup);
@@ -943,13 +1184,13 @@ export class ReadingGuideController {
 
     this.win.alert(
       [
-        "Zotero Reading Guide",
+        "ADHD Lens",
         "",
         `Chave atual: ${key}`,
         "",
         `Chaves salvas: ${knownKeys.length}`,
         ...knownKeys.slice(0, 12).map((k) => `- ${k}`),
-        knownKeys.length > 12 ? "...": "",
+        knownKeys.length > 12 ? "..." : "",
       ].join("\n")
     );
   }
@@ -975,6 +1216,10 @@ export class ReadingGuideController {
       if (key === "g") {
         ev.preventDefault();
         this.toggle();
+        return;
+      }
+
+      if (!this.isReaderTabActive()) {
         return;
       }
 
@@ -1082,6 +1327,7 @@ export class ReadingGuideController {
 
       if (changed) {
         this.saveCurrentLayout();
+        this.updateToolbarButtonState();
       }
     });
   }
